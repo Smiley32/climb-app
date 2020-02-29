@@ -1,0 +1,7 @@
+hooks/*
+node_modules/*
+platforms/*
+plugins/*
+
+.directory
+package-lock.json
