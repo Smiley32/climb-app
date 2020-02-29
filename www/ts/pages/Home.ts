@@ -7,7 +7,7 @@ class Home extends Page {
 
   public create(fct: PageFunction, params: any) {
     console.log(params.test);
-    console.log(fct(params));
+    this.mount(fct(params));
   }
 
   public destroy() {

@@ -108,6 +108,13 @@ var Loader = /** @class */ (function () {
 var Page = /** @class */ (function () {
     function Page() {
     }
+    /**
+     * Mount the given html in the page (and replace the existing code).
+     * @param html The html code that must be included in the page.
+     */
+    Page.prototype.mount = function (html) {
+        document.getElementById('mountpoint').innerHTML = html;
+    };
     return Page;
 }());
 var Tools = /** @class */ (function () {
@@ -155,7 +162,7 @@ var Home = /** @class */ (function (_super) {
     };
     Home.prototype.create = function (fct, params) {
         console.log(params.test);
-        console.log(fct(params));
+        this.mount(fct(params));
     };
     Home.prototype.destroy = function () {
         // ...
