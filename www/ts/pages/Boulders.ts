@@ -14,6 +14,8 @@ class Boulders extends Page {
         that._fctBoulderCard = doT.template(text);
       });
       this.mount(fct(params));
+
+      this.getBoulders();
     }
   
     public destroy() {
@@ -33,7 +35,7 @@ class Boulders extends Page {
     public connect() {
       console.log('test');
       console.log(this);
-      // document.getElementById('HallsSearchButton').addEventListener('click', this.onSearchClick.bind(this));
+      document.getElementById('BouldersAddButton').addEventListener('click', this.onNewBoulderButtonClick.bind(this));
     }
 
     //
@@ -52,8 +54,8 @@ class Boulders extends Page {
                         'description': parsed[i]['description'],
                         'difficulty': parsed[i]['difficulty'],
                         'success_count': 42,
-                        'creator': parsed[i]['creator_id'],
-                        'hall': parsed[i]['hall_id']
+                        'creator': parsed[i]['creator_name'],
+                        'hall': parsed[i]['hall_name']
                     });
                 }
                 document.getElementById('BouldersListContainer').innerHTML = html;
@@ -63,5 +65,7 @@ class Boulders extends Page {
   
     //
     // Callback functions (on click for example)
-    // ...
+    private onNewBoulderButtonClick() {
+        Loader.getInstance().load(Loader.PAGE_NEW_BOULDER, {});
+    }
 }

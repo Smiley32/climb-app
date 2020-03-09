@@ -17,6 +17,7 @@ class Loader {
   static PAGE_HOME: string = 'home.html';
   static PAGE_HALLS: string = 'halls.html';
   static PAGE_BOULDERS: string = 'boulders.html';
+  static PAGE_NEW_BOULDER: string = 'newBoulder.html';
 
   static PATH_TEMPLATES: string = 'templates/';
 
@@ -46,6 +47,12 @@ class Loader {
       case Loader.PAGE_BOULDERS:
       {
         return new Boulders();
+      }
+      break;
+
+      case Loader.PAGE_NEW_BOULDER:
+      {
+        return new NewBoulder();
       }
       break;
 
@@ -105,6 +112,15 @@ class Loader {
         callback();
       }
     });
+
+    finishedCount++;
+    Tools.get(Loader.PATH_TEMPLATES + Loader.PAGE_NEW_BOULDER, function(text) {
+      that._pageFunctions[Loader.PAGE_NEW_BOULDER] = doT.template(text);
+
+      if (--finishedCount === 0) {
+        callback();
+      }
+    });
   }
 
   /**
@@ -121,26 +137,40 @@ class Loader {
    * @param params  Optional parameters to send to the 'create' function of the page.
    */
   public load(page: string, params: any) {
-    let fct: PageFunction = this._pageFunctions[page];
-    if (undefined === fct) {
-      console.log('Error: The page "' + page + '" was not found.');
-      return;
-    }
+    let animationElmt = document.getElementById('animation');
+    animationElmt.classList.remove('removed');
+    animationElmt.classList.add('show');
+    let that = this;
 
-    let previousPage: Page = this.getCurrent();
-    if (previousPage) {
-      previousPage.leave();
-    }
+    setTimeout(function() {
+      let fct: PageFunction = that._pageFunctions[page];
+      if (undefined === fct) {
+        console.log('Error: The page "' + page + '" was not found.');
+        return;
+      }
+  
+      let previousPage: Page = that.getCurrent();
+      if (previousPage) {
+        previousPage.leave();
+      }
+  
+      let pageObject = that._createPageObject(page);
+      if (null === pageObject) {
+        console.log('Error: this page isn\'t supported');
+        return;
+      }
+  
+      that._loadedPages.push(pageObject);
+      pageObject.create(fct, params);
 
-    let pageObject = this._createPageObject(page);
-    if (null === pageObject) {
-      console.log('Error: this page isn\'t supported');
-      return;
-    }
+      animationElmt.classList.remove('show');
+      setTimeout(function() {
+        animationElmt.classList.add('removed');
+        pageObject.enter();
+      }, 500);
 
-    this._loadedPages.push(pageObject);
-    pageObject.create(fct, params);
-    pageObject.enter();
+    }, 500);
+
   }
 
   /**

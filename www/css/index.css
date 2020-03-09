@@ -1,3 +1,25 @@
+#animation {
+    background-color: white;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    opacity: 0;
+    transition: opacity 0.5s linear;
+}
+
+#animation.show {
+    /* display: none; */
+    opacity: 1;
+    transition: opacity 0.5s linear;
+    /* height: 0; */
+}
+
+#animation.removed {
+    height: 0;
+}
+
 .yellow {
     color: #f60;
 }

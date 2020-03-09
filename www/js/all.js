@@ -42,6 +42,11 @@ var Loader = /** @class */ (function () {
                     return new Boulders();
                 }
                 break;
+            case Loader.PAGE_NEW_BOULDER:
+                {
+                    return new NewBoulder();
+                }
+                break;
             default:
                 {
                     return null;
@@ -87,6 +92,13 @@ var Loader = /** @class */ (function () {
                 callback();
             }
         });
+        finishedCount++;
+        Tools.get(Loader.PATH_TEMPLATES + Loader.PAGE_NEW_BOULDER, function (text) {
+            that._pageFunctions[Loader.PAGE_NEW_BOULDER] = doT.template(text);
+            if (--finishedCount === 0) {
+                callback();
+            }
+        });
     };
     /**
      * Get the current (displayed) page.
@@ -101,23 +113,33 @@ var Loader = /** @class */ (function () {
      * @param params  Optional parameters to send to the 'create' function of the page.
      */
     Loader.prototype.load = function (page, params) {
-        var fct = this._pageFunctions[page];
-        if (undefined === fct) {
-            console.log('Error: The page "' + page + '" was not found.');
-            return;
-        }
-        var previousPage = this.getCurrent();
-        if (previousPage) {
-            previousPage.leave();
-        }
-        var pageObject = this._createPageObject(page);
-        if (null === pageObject) {
-            console.log('Error: this page isn\'t supported');
-            return;
-        }
-        this._loadedPages.push(pageObject);
-        pageObject.create(fct, params);
-        pageObject.enter();
+        var animationElmt = document.getElementById('animation');
+        animationElmt.classList.remove('removed');
+        animationElmt.classList.add('show');
+        var that = this;
+        setTimeout(function () {
+            var fct = that._pageFunctions[page];
+            if (undefined === fct) {
+                console.log('Error: The page "' + page + '" was not found.');
+                return;
+            }
+            var previousPage = that.getCurrent();
+            if (previousPage) {
+                previousPage.leave();
+            }
+            var pageObject = that._createPageObject(page);
+            if (null === pageObject) {
+                console.log('Error: this page isn\'t supported');
+                return;
+            }
+            that._loadedPages.push(pageObject);
+            pageObject.create(fct, params);
+            animationElmt.classList.remove('show');
+            setTimeout(function () {
+                animationElmt.classList.add('removed');
+                pageObject.enter();
+            }, 500);
+        }, 500);
     };
     /**
      * Unload the current page, and load the previous page.
@@ -136,6 +158,7 @@ var Loader = /** @class */ (function () {
     Loader.PAGE_HOME = 'home.html';
     Loader.PAGE_HALLS = 'halls.html';
     Loader.PAGE_BOULDERS = 'boulders.html';
+    Loader.PAGE_NEW_BOULDER = 'newBoulder.html';
     Loader.PATH_TEMPLATES = 'templates/';
     return Loader;
 }());
@@ -221,9 +244,6 @@ var Boulders = /** @class */ (function (_super) {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this._fctBoulderCard = null;
         return _this;
-        //
-        // Callback functions (on click for example)
-        // ...
     }
     Boulders.prototype.getType = function () {
         return Boulders.TYPE_PAGE_BOULDERS;
@@ -235,6 +255,7 @@ var Boulders = /** @class */ (function (_super) {
             that._fctBoulderCard = doT.template(text);
         });
         this.mount(fct(params));
+        this.getBoulders();
     };
     Boulders.prototype.destroy = function () {
         // ...
@@ -250,7 +271,7 @@ var Boulders = /** @class */ (function (_super) {
     Boulders.prototype.connect = function () {
         console.log('test');
         console.log(this);
-        // document.getElementById('HallsSearchButton').addEventListener('click', this.onSearchClick.bind(this));
+        document.getElementById('BouldersAddButton').addEventListener('click', this.onNewBoulderButtonClick.bind(this));
     };
     //
     // Private functions
@@ -269,13 +290,18 @@ var Boulders = /** @class */ (function (_super) {
                         'description': parsed[i]['description'],
                         'difficulty': parsed[i]['difficulty'],
                         'success_count': 42,
-                        'creator': parsed[i]['creator_id'],
-                        'hall': parsed[i]['hall_id']
+                        'creator': parsed[i]['creator_name'],
+                        'hall': parsed[i]['hall_name']
                     });
                 }
                 document.getElementById('BouldersListContainer').innerHTML = html;
             }
         });
+    };
+    //
+    // Callback functions (on click for example)
+    Boulders.prototype.onNewBoulderButtonClick = function () {
+        Loader.getInstance().load(Loader.PAGE_NEW_BOULDER, {});
     };
     Boulders.TYPE_PAGE_BOULDERS = 'PAGE_BOULDERS';
     return Boulders;
@@ -397,4 +423,35 @@ var Home = /** @class */ (function (_super) {
     };
     Home.TYPE_PAGE_HOME = 'PAGE_HOME';
     return Home;
+}(Page));
+var NewBoulder = /** @class */ (function (_super) {
+    __extends(NewBoulder, _super);
+    function NewBoulder() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    NewBoulder.prototype.getType = function () {
+        return NewBoulder.TYPE_PAGE_NEW_BOULDER;
+    };
+    NewBoulder.prototype.create = function (fct, params) {
+        console.log(params.test);
+        this.mount(fct(params));
+    };
+    NewBoulder.prototype.destroy = function () {
+        // ...
+    };
+    NewBoulder.prototype.enter = function () {
+        // ...
+    };
+    NewBoulder.prototype.leave = function () {
+        // ...
+    };
+    //
+    // Connect events
+    NewBoulder.prototype.connect = function () {
+        console.log('test');
+        console.log(this);
+        // document.getElementById('HallsSearchButton').addEventListener('click', this.onSearchClick.bind(this));
+    };
+    NewBoulder.TYPE_PAGE_NEW_BOULDER = 'PAGE_NEW_BOULDER';
+    return NewBoulder;
 }(Page));
