@@ -16,6 +16,7 @@ var Loader = /** @class */ (function () {
         // private
         this._loadedPages = [];
         this._pageFunctions = [];
+        this.fctMessageTemplate = null;
         // ...
     }
     // private
@@ -29,6 +30,16 @@ var Loader = /** @class */ (function () {
             case Loader.PAGE_HOME:
                 {
                     return new Home();
+                }
+                break;
+            case Loader.PAGE_HALLS:
+                {
+                    return new Halls();
+                }
+                break;
+            case Loader.PAGE_BOULDERS:
+                {
+                    return new Boulders();
                 }
                 break;
             default:
@@ -49,8 +60,29 @@ var Loader = /** @class */ (function () {
         var that = this;
         var finishedCount = 0;
         finishedCount++;
+        Tools.get(Loader.PATH_TEMPLATES + 'message.html', function (text) {
+            that.fctMessageTemplate = doT.template(text);
+            if (--finishedCount === 0) {
+                callback();
+            }
+        });
+        finishedCount++;
         Tools.get(Loader.PATH_TEMPLATES + Loader.PAGE_HOME, function (text) {
             that._pageFunctions[Loader.PAGE_HOME] = doT.template(text);
+            if (--finishedCount === 0) {
+                callback();
+            }
+        });
+        finishedCount++;
+        Tools.get(Loader.PATH_TEMPLATES + Loader.PAGE_HALLS, function (text) {
+            that._pageFunctions[Loader.PAGE_HALLS] = doT.template(text);
+            if (--finishedCount === 0) {
+                callback();
+            }
+        });
+        finishedCount++;
+        Tools.get(Loader.PATH_TEMPLATES + Loader.PAGE_BOULDERS, function (text) {
+            that._pageFunctions[Loader.PAGE_BOULDERS] = doT.template(text);
             if (--finishedCount === 0) {
                 callback();
             }
@@ -71,7 +103,7 @@ var Loader = /** @class */ (function () {
     Loader.prototype.load = function (page, params) {
         var fct = this._pageFunctions[page];
         if (undefined === fct) {
-            console.log('Error: The page "' + page + ' was not found."');
+            console.log('Error: The page "' + page + '" was not found.');
             return;
         }
         var previousPage = this.getCurrent();
@@ -102,6 +134,8 @@ var Loader = /** @class */ (function () {
     Loader._instance = null;
     // public
     Loader.PAGE_HOME = 'home.html';
+    Loader.PAGE_HALLS = 'halls.html';
+    Loader.PAGE_BOULDERS = 'boulders.html';
     Loader.PATH_TEMPLATES = 'templates/';
     return Loader;
 }());
@@ -114,6 +148,7 @@ var Page = /** @class */ (function () {
      */
     Page.prototype.mount = function (html) {
         document.getElementById('mountpoint').innerHTML = html;
+        this.connect();
     };
     return Page;
 }());
@@ -121,7 +156,7 @@ var Tools = /** @class */ (function () {
     function Tools() {
     }
     /**
-     * Do a get request, and get the result as a string in a callback function.
+     * Send a get request, and get the result as a string in a callback function.
      * @param url       The url/path to get.
      * @param callback  The function to call upon success.
      */
@@ -130,7 +165,9 @@ var Tools = /** @class */ (function () {
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4) {
                 if (this.status === 200) {
-                    callback(this.responseText);
+                    if (undefined != callback) {
+                        callback(this.responseText);
+                    }
                 }
                 else {
                     console.log('Error: unable to GET "' + url + '"');
@@ -140,6 +177,32 @@ var Tools = /** @class */ (function () {
         xhttp.open('GET', url, true);
         xhttp.send();
     };
+    /**
+     * Send a post request, and get the result as a string in a callback function.
+     * @param url       The url to send to.
+     * @param object    A (json) object to send (not a string).
+     * @param callback  The function to call upon success.
+     */
+    Tools.post = function (url, object, callback) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.open('POST', url, true);
+        xhttp.setRequestHeader('Content-Type', 'application/json');
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    if (null != callback && undefined != callback) {
+                        callback(this.responseText);
+                    }
+                }
+                else {
+                    console.log('Error: unable to POST "' + url + '"');
+                }
+            }
+        };
+        var data = JSON.stringify(object);
+        xhttp.send(data);
+    };
+    Tools.SERVER_BASE_URL = 'http://localhost/climb/api/';
     return Tools;
 }());
 function main() {
@@ -152,6 +215,144 @@ function main() {
     });
 }
 document.addEventListener('deviceready', main);
+var Boulders = /** @class */ (function (_super) {
+    __extends(Boulders, _super);
+    function Boulders() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this._fctBoulderCard = null;
+        return _this;
+        //
+        // Callback functions (on click for example)
+        // ...
+    }
+    Boulders.prototype.getType = function () {
+        return Boulders.TYPE_PAGE_BOULDERS;
+    };
+    Boulders.prototype.create = function (fct, params) {
+        console.log(params.test);
+        var that = this;
+        Tools.get(Loader.PATH_TEMPLATES + 'cardBoulder.html', function (text) {
+            that._fctBoulderCard = doT.template(text);
+        });
+        this.mount(fct(params));
+    };
+    Boulders.prototype.destroy = function () {
+        // ...
+    };
+    Boulders.prototype.enter = function () {
+        // ...
+    };
+    Boulders.prototype.leave = function () {
+        // ...
+    };
+    //
+    // Connect events
+    Boulders.prototype.connect = function () {
+        console.log('test');
+        console.log(this);
+        // document.getElementById('HallsSearchButton').addEventListener('click', this.onSearchClick.bind(this));
+    };
+    //
+    // Private functions
+    Boulders.prototype.getBoulders = function () {
+        var that = this;
+        Tools.get(Tools.SERVER_BASE_URL + 'get/boulder?hall_id=1&search=', function (text) {
+            console.log('GET: ' + text);
+            var parsed = JSON.parse(text);
+            if (!parsed) {
+                console.log('Error trying to get boulders from the database');
+            }
+            else {
+                var html = '';
+                for (var i = 0; i < parsed.length; i++) {
+                    html += that._fctBoulderCard({
+                        'description': parsed[i]['description'],
+                        'difficulty': parsed[i]['difficulty'],
+                        'success_count': 42,
+                        'creator': parsed[i]['creator_id'],
+                        'hall': parsed[i]['hall_id']
+                    });
+                }
+                document.getElementById('BouldersListContainer').innerHTML = html;
+            }
+        });
+    };
+    Boulders.TYPE_PAGE_BOULDERS = 'PAGE_BOULDERS';
+    return Boulders;
+}(Page));
+var Halls = /** @class */ (function (_super) {
+    __extends(Halls, _super);
+    function Halls() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this._fctHallCard = null;
+        return _this;
+    }
+    Halls.prototype.getType = function () {
+        return Halls.TYPE_PAGE_HALLS;
+    };
+    Halls.prototype.create = function (fct, params) {
+        console.log(params.test);
+        var that = this;
+        Tools.get(Loader.PATH_TEMPLATES + 'cardHall.html', function (text) {
+            that._fctHallCard = doT.template(text);
+        });
+        this.mount(fct(params));
+    };
+    Halls.prototype.destroy = function () {
+        // ...
+    };
+    Halls.prototype.enter = function () {
+        // ...
+    };
+    Halls.prototype.leave = function () {
+        // ...
+    };
+    //
+    // Connect events
+    Halls.prototype.connect = function () {
+        console.log('test');
+        console.log(this);
+        document.getElementById('HallsSearchButton').addEventListener('click', this.onSearchClick.bind(this));
+    };
+    //
+    // Callback functions (on click for example)
+    Halls.prototype.onSearchClick = function () {
+        var search = document.getElementById('HallsSearchText').value;
+        var that = this;
+        Tools.get(Tools.SERVER_BASE_URL + 'get/hall?search=' + search, function (data) {
+            console.log(data);
+            var parsed = JSON.parse(data);
+            if (null !== that._fctHallCard) {
+                var html = '';
+                for (var i = 0; i < parsed.length; i++) {
+                    html += that._fctHallCard({
+                        'id': parsed[i]['id'],
+                        'name': parsed[i]['name'],
+                        'city': parsed[i]['city'],
+                        'htmlID': 'CardHall' + parsed[i]['id']
+                    });
+                }
+                document.getElementById('HallsListContainer').innerHTML = html;
+                for (var i = 0; i < parsed.length; i++) {
+                    var elmt = document.getElementById('CardHall' + parsed[i]['id']);
+                    if (elmt) {
+                        elmt.addEventListener('click', that.onCardHallClick.bind(that, parsed['id']));
+                    }
+                    else {
+                        console.log('Unable to set an event');
+                    }
+                }
+            }
+        });
+    };
+    Halls.prototype.onCardHallClick = function (id) {
+        Loader.getInstance().load(Loader.PAGE_BOULDERS, {
+            'hall_id': id
+        });
+    };
+    Halls.TYPE_PAGE_HALLS = 'PAGE_HALLS';
+    return Halls;
+}(Page));
 var Home = /** @class */ (function (_super) {
     __extends(Home, _super);
     function Home() {
@@ -171,7 +372,28 @@ var Home = /** @class */ (function (_super) {
         // ...
     };
     Home.prototype.leave = function () {
-        // ...
+        console.log('Left Home');
+    };
+    //
+    // Connect events
+    Home.prototype.connect = function () {
+        console.log(this);
+        document.getElementById('HomeConnectButton').addEventListener('click', this.onConnectClick.bind(this));
+        document.getElementById('HomeIgnoreButton').addEventListener('click', this.onIgnoreClick.bind(this));
+    };
+    //
+    // Callback functions (on click for example)
+    Home.prototype.onConnectClick = function () {
+        console.log('Try to connect');
+        var html = Loader.getInstance().fctMessageTemplate({
+            'type': 'danger',
+            'message': 'Un premier test d\'erreur'
+        });
+        document.getElementById('HomeMessageContainer').innerHTML = html;
+    };
+    Home.prototype.onIgnoreClick = function () {
+        console.log('Ignore connection');
+        Loader.getInstance().load(Loader.PAGE_HALLS, {});
     };
     Home.TYPE_PAGE_HOME = 'PAGE_HOME';
     return Home;

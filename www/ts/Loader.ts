@@ -15,8 +15,12 @@ class Loader {
 
 // public
   static PAGE_HOME: string = 'home.html';
+  static PAGE_HALLS: string = 'halls.html';
+  static PAGE_BOULDERS: string = 'boulders.html';
 
   static PATH_TEMPLATES: string = 'templates/';
+
+  fctMessageTemplate = null;
 
 
 // private
@@ -30,6 +34,18 @@ class Loader {
       case Loader.PAGE_HOME:
       {
         return new Home();
+      }
+      break;
+
+      case Loader.PAGE_HALLS:
+      {
+        return new Halls();
+      }
+      break;
+
+      case Loader.PAGE_BOULDERS:
+      {
+        return new Boulders();
       }
       break;
 
@@ -53,10 +69,37 @@ class Loader {
   public Initialize(callback: Function) {
     let that: Loader = this;
     let finishedCount: number = 0;
+
+    finishedCount++;
+    Tools.get(Loader.PATH_TEMPLATES + 'message.html', function(text) {
+      that.fctMessageTemplate = doT.template(text);
+
+      if (--finishedCount === 0) {
+        callback();
+      }
+    });
     
     finishedCount++;
     Tools.get(Loader.PATH_TEMPLATES + Loader.PAGE_HOME, function(text) {
       that._pageFunctions[Loader.PAGE_HOME] = doT.template(text);
+
+      if (--finishedCount === 0) {
+        callback();
+      }
+    });
+
+    finishedCount++;
+    Tools.get(Loader.PATH_TEMPLATES + Loader.PAGE_HALLS, function(text) {
+      that._pageFunctions[Loader.PAGE_HALLS] = doT.template(text);
+
+      if (--finishedCount === 0) {
+        callback();
+      }
+    });
+
+    finishedCount++;
+    Tools.get(Loader.PATH_TEMPLATES + Loader.PAGE_BOULDERS, function(text) {
+      that._pageFunctions[Loader.PAGE_BOULDERS] = doT.template(text);
 
       if (--finishedCount === 0) {
         callback();
@@ -80,7 +123,7 @@ class Loader {
   public load(page: string, params: any) {
     let fct: PageFunction = this._pageFunctions[page];
     if (undefined === fct) {
-      console.log('Error: The page "' + page + ' was not found."');
+      console.log('Error: The page "' + page + '" was not found.');
       return;
     }
 

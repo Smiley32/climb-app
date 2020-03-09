@@ -1,6 +1,8 @@
 type CallbackText = (text: string) => void;
 
 class Tools {
+  static SERVER_BASE_URL = 'http://localhost/climb/api/';
+
   /**
    * Send a get request, and get the result as a string in a callback function.
    * @param url       The url/path to get.

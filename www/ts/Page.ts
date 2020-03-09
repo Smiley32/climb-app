@@ -5,7 +5,11 @@ abstract class Page {
    */
   protected mount(html: string) {
     document.getElementById('mountpoint').innerHTML = html;
+
+    this.connect();
   }
+
+  public abstract connect();
 
   public abstract getType() : string;
 

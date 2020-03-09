@@ -1,0 +1,101 @@
+<div class="card thumb-card">
+    <div class="card-image">
+      <figure class="image">
+        <img id="boulder" src="https://i2.wp.com/www.nantaise.fr/wp-content/uploads/2018/07/Blog-Nantes-sport-block-out-salle-escalade1.jpg">
+      </figure>
+      <div id="holds" class="main-only">
+      </div>
+      <span class="thumb-only thumb-tag-difficulty tag is-info is-light">{{= it.difficulty}}</span>
+    </div>
+    <div class="card-content">
+      <div class="content">
+        <div class="tags">
+          <span class="tag is-info is-light">jeté</span>
+        </div>
+        
+        <p>{{= it.description}}
+        </p>
+        
+        <table class="main-only">
+          <tr><td>Bloc créé par :</td><td>{{= it.creator}}</td></tr>
+          <tr><td>Salle :</td><td>{{= it.hall}}</td></tr>
+          <tr><td>Difficulté :</td><td>{{= it.difficulty}}</td></tr>
+          <tr><td>Nombre de réussites :</td><td>{{= it.success_count}}</td></tr>
+          <tr><td>Note moyenne :</td><td>
+              <i class="material-icons yellow">star</i>
+              <i class="material-icons yellow">star</i>
+              <i class="material-icons yellow">star</i>
+              <i class="material-icons yellow">star</i>
+              <i class="material-icons">star_border</i>
+            </td>
+          </tr>
+        </table>
+  
+        <div class="main-only">
+          <h5>Actions personnelles :</h5>
+          <table>
+            <tr>
+              <td>Difficulté :</td>
+              <td>
+                <div class="select">
+                  <select>
+                    <option>4a</option>
+                    <option>4a+</option>
+                    <option>4b</option>
+                    <option>4b+</option>
+                    <option>4c</option>
+                    <option>4c+</option>
+                    <option>5a</option>
+                    <option>5a+</option>
+                    <option>5b</option>
+                    <option>5b+</option>
+                    <option>5c</option>
+                    <option>5c+</option>
+                    <option>6a</option>
+                    <option>6a+</option>
+                    <option>6b</option>
+                    <option>6b+</option>
+                    <option>6c</option>
+                    <option>6c+</option>
+                    <option>7a</option>
+                    <option>7a+</option>
+                    <option>7b</option>
+                    <option>7b+</option>
+                    <option>7c</option>
+                    <option>7c+</option>
+                    <option>8a</option>
+                    <option>8a+</option>
+                    <option>8b</option>
+                    <option>8b+</option>
+                    <option>8c</option>
+                    <option>8c+</option>
+                  </select>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>Note :</td>
+              <td>
+                <i class="material-icons">star_border</i>
+                <i class="material-icons">star_border</i>
+                <i class="material-icons">star_border</i>
+                <i class="material-icons">star_border</i>
+                <i class="material-icons">star_border</i>
+              </td>
+            </tr>
+            <tr>
+              <td>Essais :</td>
+              <td class="field has-addons">
+                <button class="button">-</button>
+                <input class="input" type="text"/>
+                <button class="button">+</button>
+              </td>
+            </tr>
+            <tr>
+              <td>Réussite</td><td><button class="button is-success">Marquer comme réussi</button></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
