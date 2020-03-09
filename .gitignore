@@ -2,6 +2,7 @@ hooks/*
 node_modules/*
 platforms/*
 plugins/*
+.gradle/*
 
 .directory
 package-lock.json
