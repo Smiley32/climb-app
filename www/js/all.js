@@ -225,7 +225,7 @@ var Tools = /** @class */ (function () {
         var data = JSON.stringify(object);
         xhttp.send(data);
     };
-    Tools.SERVER_BASE_URL = 'http://localhost/climb/api/';
+    Tools.SERVER_BASE_URL = 'http://192.168.1.84/climb/api/';
     return Tools;
 }());
 function main() {
@@ -450,7 +450,23 @@ var NewBoulder = /** @class */ (function (_super) {
     NewBoulder.prototype.connect = function () {
         console.log('test');
         console.log(this);
-        // document.getElementById('HallsSearchButton').addEventListener('click', this.onSearchClick.bind(this));
+        document.getElementById('NewBoulderNewImageButton').addEventListener('click', this.onNewBoulderNewImageButtonClick.bind(this));
+    };
+    //
+    // Private functions
+    // ...
+    //
+    // Callback functions (on click for example)
+    NewBoulder.prototype.onNewBoulderNewImageButtonClick = function () {
+        navigator.camera.getPicture(function (imageData) {
+            console.log('success');
+            console.log(imageData);
+        }, function (message) {
+            console.log('error');
+            console.log(message);
+        }, {
+            destinationType: Camera.DestinationType.FILE_URI
+        });
     };
     NewBoulder.TYPE_PAGE_NEW_BOULDER = 'PAGE_NEW_BOULDER';
     return NewBoulder;

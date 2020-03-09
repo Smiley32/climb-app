@@ -27,7 +27,7 @@ class NewBoulder extends Page {
     public connect() {
       console.log('test');
       console.log(this);
-      // document.getElementById('HallsSearchButton').addEventListener('click', this.onSearchClick.bind(this));
+      document.getElementById('NewBoulderNewImageButton').addEventListener('click', this.onNewBoulderNewImageButtonClick.bind(this));
     }
 
     //
@@ -36,5 +36,15 @@ class NewBoulder extends Page {
   
     //
     // Callback functions (on click for example)
-    // ...
+    private onNewBoulderNewImageButtonClick() {
+        (<any>navigator).camera.getPicture(function(imageData) {
+            console.log('success');
+            console.log(imageData);
+        }, function(message) {
+            console.log('error');
+            console.log(message);
+        }, {
+            destinationType: Camera.DestinationType.FILE_URI
+        });
+    }
 }

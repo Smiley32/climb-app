@@ -1,4 +1,5 @@
 declare var doT: any;
+declare var Camera: any;
 
 type PageFunction = (struct: any) => string;
 
