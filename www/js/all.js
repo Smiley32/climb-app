@@ -225,7 +225,7 @@ var Tools = /** @class */ (function () {
         var data = JSON.stringify(object);
         xhttp.send(data);
     };
-    Tools.SERVER_BASE_URL = 'http://192.168.1.84/climb/api/';
+    Tools.SERVER_BASE_URL = 'http://192.168.1.96/climb/api/';
     return Tools;
 }());
 function main() {
@@ -465,7 +465,17 @@ var NewBoulder = /** @class */ (function (_super) {
             console.log('error');
             console.log(message);
         }, {
-            destinationType: Camera.DestinationType.FILE_URI
+            // destinationType: Camera.DestinationType.FILE_URI,
+            destinationType: Camera.DestinationType.DATA_URL,
+            quality: 70,
+            allowEdit: true,
+            encodingType: Camera.EncodingType.JPEG,
+            targetWidth: 1000,
+            targetHeight: 1000,
+            mediaType: Camera.MediaType.PICTURE,
+            correctOrientation: true,
+            saveToPhotoAlbum: false,
+            cameraDirection: Camera.Direction.BACK
         });
     };
     NewBoulder.TYPE_PAGE_NEW_BOULDER = 'PAGE_NEW_BOULDER';
