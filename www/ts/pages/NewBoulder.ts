@@ -40,6 +40,9 @@ class NewBoulder extends Page {
     (<any>navigator).camera.getPicture(function(imageData) {
       console.log('success');
       console.log(imageData);
+
+      (<HTMLImageElement>document.getElementById('NewBoulderImage')).src = 'data:image/jpeg;base64,' + imageData;
+
     }, function(message) {
       console.log('error');
       console.log(message);
