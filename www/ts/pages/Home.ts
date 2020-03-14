@@ -34,11 +34,40 @@ class Home extends Page {
   // Callback functions (on click for example)
   public onConnectClick() {
     console.log('Try to connect');
-    var html = Loader.getInstance().fctMessageTemplate({
-      'type': 'danger',
-      'message': 'Un premier test d\'erreur'
+
+    //
+    // Get value from the fields
+    let pseudo = (<HTMLInputElement>document.getElementById("HomePseudoInput")).value;
+    let password = (<HTMLInputElement>document.getElementById("HomePasswordInput")).value;
+
+    if (pseudo.length < 1 || password.length < 1) {
+      Tools.displayError('Les champs ne sont pas remplis');
+      return;
+    }
+
+    //
+    // Send a request to the server
+    let that = this;
+    Tools.post(Tools.SERVER_BASE_URL + 'post/login', {
+      'pseudo': pseudo,
+      'password': password
+    }, function(data) {
+      console.log(data);
+      let parsed = JSON.parse(data);
+      if (parsed.error === 0) {
+        // Success
+        // We can store the token
+        Tools.setToken(parsed.token);
+        //
+        // We can load the next page.
+        Loader.getInstance().load(Loader.PAGE_HALLS, {});
+      }
+    }, function(data) {
+      // An error occurred.
+      let parsed = JSON.parse(data);
+      console.log(parsed.message);
+      Tools.displayError(parsed.message);
     });
-    document.getElementById('HomeMessageContainer').innerHTML = html;
   }
 
   public onIgnoreClick() {

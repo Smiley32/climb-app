@@ -206,7 +206,8 @@ var Tools = /** @class */ (function () {
      * @param object    A (json) object to send (not a string).
      * @param callback  The function to call upon success.
      */
-    Tools.post = function (url, object, callback) {
+    Tools.post = function (url, object, callback, errorCallback) {
+        if (errorCallback === void 0) { errorCallback = null; }
         var xhttp = new XMLHttpRequest();
         xhttp.open('POST', url, true);
         xhttp.setRequestHeader('Content-Type', 'application/json');
@@ -218,12 +219,39 @@ var Tools = /** @class */ (function () {
                     }
                 }
                 else {
-                    console.log('Error: unable to POST "' + url + '"');
+                    if (errorCallback) {
+                        errorCallback(this.responseText);
+                    }
                 }
             }
         };
         var data = JSON.stringify(object);
         xhttp.send(data);
+    };
+    /**
+     * Store the given token in the localStorage. If one is already stored, it will be replaced.
+     * @param token The token to store.
+     */
+    Tools.setToken = function (token) {
+        localStorage.setItem('token', token);
+    };
+    /**
+     * Get the token stored in the localStorage, if one is here.
+     * @return The stored token, null if none
+     */
+    Tools.getToken = function () {
+        return localStorage.getItem('token');
+    };
+    /**
+     * Displays an error message on top of the page.
+     * @param message The message to display
+     */
+    Tools.displayError = function (message) {
+        var html = Loader.getInstance().fctMessageTemplate({
+            'type': 'danger',
+            'message': message
+        });
+        document.getElementById('HomeMessageContainer').innerHTML = html;
     };
     Tools.SERVER_BASE_URL = 'http://192.168.1.96/climb/api/';
     return Tools;
@@ -411,11 +439,37 @@ var Home = /** @class */ (function (_super) {
     // Callback functions (on click for example)
     Home.prototype.onConnectClick = function () {
         console.log('Try to connect');
-        var html = Loader.getInstance().fctMessageTemplate({
-            'type': 'danger',
-            'message': 'Un premier test d\'erreur'
+        //
+        // Get value from the fields
+        var pseudo = document.getElementById("HomePseudoInput").value;
+        var password = document.getElementById("HomePasswordInput").value;
+        if (pseudo.length < 1 || password.length < 1) {
+            Tools.displayError('Les champs ne sont pas remplis');
+            return;
+        }
+        //
+        // Send a request to the server
+        var that = this;
+        Tools.post(Tools.SERVER_BASE_URL + 'post/login', {
+            'pseudo': pseudo,
+            'password': password
+        }, function (data) {
+            console.log(data);
+            var parsed = JSON.parse(data);
+            if (parsed.error === 0) {
+                // Success
+                // We can store the token
+                Tools.setToken(parsed.token);
+                //
+                // We can load the next page.
+                Loader.getInstance().load(Loader.PAGE_HALLS, {});
+            }
+        }, function (data) {
+            // An error occurred.
+            var parsed = JSON.parse(data);
+            console.log(parsed.message);
+            Tools.displayError(parsed.message);
         });
-        document.getElementById('HomeMessageContainer').innerHTML = html;
     };
     Home.prototype.onIgnoreClick = function () {
         console.log('Ignore connection');
