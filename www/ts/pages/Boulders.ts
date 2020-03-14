@@ -40,36 +40,36 @@ class Boulders extends Page {
     //
     // Private functions
     private getBoulders() {
-        let that = this;
-        let hallId = Tools.getHall();
-        if (null == hallId) {
-          console.log('Error, no hall choosen');
-          return;
+      let that = this;
+      let hallId = Tools.getHall();
+      if (null == hallId) {
+        console.log('Error, no hall choosen');
+        return;
+      }
+      Tools.get(Tools.SERVER_BASE_URL + 'get/boulder?hall_id=' + hallId + '&search=', function(text) {
+        console.log('GET: ' + text);
+        let parsed = JSON.parse(text);
+        if (!parsed) {
+          console.log('Error trying to get boulders from the database');
+        } else {
+          let html: string = '';
+          for (let i = 0; i < parsed.length; i++) {
+            html += that._fctBoulderCard({
+              'description': parsed[i]['description'],
+              'difficulty': Tools.gradeValueToFrench(parsed[i]['difficulty']),
+              'success_count': 42,
+              'creator': parsed[i]['creator_name'],
+              'hall': parsed[i]['hall_name']
+            });
+          }
+          document.getElementById('BouldersListContainer').innerHTML = html;
         }
-        Tools.get(Tools.SERVER_BASE_URL + 'get/boulder?hall_id=' + hallId + '&search=', function(text) {
-            console.log('GET: ' + text);
-            let parsed = JSON.parse(text);
-            if (!parsed) {
-                console.log('Error trying to get boulders from the database');
-            } else {
-                let html: string = '';
-                for (let i = 0; i < parsed.length; i++) {
-                    html += that._fctBoulderCard({
-                        'description': parsed[i]['description'],
-                        'difficulty': parsed[i]['difficulty'],
-                        'success_count': 42,
-                        'creator': parsed[i]['creator_name'],
-                        'hall': parsed[i]['hall_name']
-                    });
-                }
-                document.getElementById('BouldersListContainer').innerHTML = html;
-            }
-        });
+      });
     }
   
     //
     // Callback functions (on click for example)
     private onNewBoulderButtonClick() {
-        Loader.getInstance().load(Loader.PAGE_NEW_BOULDER, {});
+      Loader.getInstance().load(Loader.PAGE_NEW_BOULDER, {});
     }
 }

@@ -237,20 +237,28 @@ var Tools = /** @class */ (function () {
     };
     /**
      * Get the token stored in the localStorage, if one is here.
-     * @return The stored token, null if none
+     * @return The stored token, null if none.
      */
     Tools.getToken = function () {
         return localStorage.getItem('token');
     };
+    /**
+     * Store a hall id in the localStorage.
+     * @param hall The value of the hall (its id).
+     */
     Tools.setHall = function (hall) {
         localStorage.setItem('hall', hall);
     };
+    /**
+     * Get a hall id from the localStorage.
+     * @return The id of the hall, null if none is storred.
+     */
     Tools.getHall = function () {
         return localStorage.getItem('hall');
     };
     /**
      * Displays an error message on top of the page.
-     * @param message The message to display
+     * @param message The message to display.
      */
     Tools.displayError = function (message) {
         var html = Loader.getInstance().fctMessageTemplate({
@@ -258,6 +266,111 @@ var Tools = /** @class */ (function () {
             'message': message
         });
         document.getElementById('HomeMessageContainer').innerHTML = html;
+    };
+    /**
+     * Convert a grade given by the server to a french/fontainebleau notation
+     * (7a+ / 5+ / 6b ...)
+     * @param value The converted value
+     */
+    Tools.gradeValueToFrench = function (value) {
+        var grade = '';
+        if (value <= 25) {
+            grade = '4';
+            if (value > 15) {
+                grade += '+';
+            }
+        }
+        else if (value <= 45) {
+            grade = '5';
+            if (value > 35) {
+                grade += '+';
+            }
+        }
+        else if (value <= 105) {
+            grade = '6';
+            if (value <= 65) {
+                grade += 'a';
+                if (value > 55) {
+                    grade += '+';
+                }
+            }
+            else if (value <= 85) {
+                grade += 'b';
+                if (value > 75) {
+                    grade += '+';
+                }
+            }
+            else {
+                grade += 'c';
+                if (value > 95) {
+                    grade += '+';
+                }
+            }
+        }
+        else if (value <= 165) {
+            grade = '7';
+            if (value <= 125) {
+                grade += 'a';
+                if (value > 115) {
+                    grade += '+';
+                }
+            }
+            else if (value <= 145) {
+                grade += 'b';
+                if (value > 135) {
+                    grade += '+';
+                }
+            }
+            else {
+                grade += 'c';
+                if (value > 155) {
+                    grade += '+';
+                }
+            }
+        }
+        else if (value <= 225) {
+            grade = '8';
+            if (value <= 185) {
+                grade += 'a';
+                if (value > 175) {
+                    grade += '+';
+                }
+            }
+            else if (value <= 205) {
+                grade += 'b';
+                if (value > 195) {
+                    grade += '+';
+                }
+            }
+            else {
+                grade += 'c';
+                if (value > 215) {
+                    grade += '+';
+                }
+            }
+        }
+        else {
+            grade = '9';
+            if (value <= 245) {
+                grade += 'a';
+                if (value > 235) {
+                    grade += '+';
+                }
+            }
+            else if (value <= 265) {
+                grade += 'b';
+                if (value > 255) {
+                    grade += '+';
+                }
+            }
+            else {
+                grade += 'c';
+                if (value > 275) {
+                    grade += '+';
+                }
+            }
+        }
+        return grade;
     };
     Tools.SERVER_BASE_URL = 'http://192.168.1.96/climb/api/';
     return Tools;
@@ -341,7 +454,7 @@ var Boulders = /** @class */ (function (_super) {
                 for (var i = 0; i < parsed.length; i++) {
                     html += that._fctBoulderCard({
                         'description': parsed[i]['description'],
-                        'difficulty': parsed[i]['difficulty'],
+                        'difficulty': Tools.gradeValueToFrench(parsed[i]['difficulty']),
                         'success_count': 42,
                         'creator': parsed[i]['creator_name'],
                         'hall': parsed[i]['hall_name']
