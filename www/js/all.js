@@ -242,6 +242,12 @@ var Tools = /** @class */ (function () {
     Tools.getToken = function () {
         return localStorage.getItem('token');
     };
+    Tools.setHall = function (hall) {
+        localStorage.setItem('hall', hall);
+    };
+    Tools.getHall = function () {
+        return localStorage.getItem('hall');
+    };
     /**
      * Displays an error message on top of the page.
      * @param message The message to display
@@ -260,9 +266,24 @@ function main() {
     var loader = Loader.getInstance();
     loader.Initialize(function () {
         console.log('Loader initialized!');
-        loader.load(Loader.PAGE_HOME, {
-            test: 'Smiley32'
-        });
+        if (null == Tools.getToken()) {
+            // The user isn't connected, we ask him
+            loader.load(Loader.PAGE_HOME, {
+                test: 'Smiley32'
+            });
+        }
+        else {
+            // The user is already connected, we can skip the first page
+            if (null == Tools.getHall()) {
+                // If there isn't any hall defined, we load the page to choose one
+                Loader.getInstance().load(Loader.PAGE_HALLS, {});
+            }
+            else {
+                // A hall is stored, we can load the boulder page.
+                // The user can then choose to change hall
+                Loader.getInstance().load(Loader.PAGE_BOULDERS, {});
+            }
+        }
     });
 }
 document.addEventListener('deviceready', main);
@@ -277,7 +298,6 @@ var Boulders = /** @class */ (function (_super) {
         return Boulders.TYPE_PAGE_BOULDERS;
     };
     Boulders.prototype.create = function (fct, params) {
-        console.log(params.test);
         var that = this;
         Tools.get(Loader.PATH_TEMPLATES + 'cardBoulder.html', function (text) {
             that._fctBoulderCard = doT.template(text);
@@ -305,7 +325,12 @@ var Boulders = /** @class */ (function (_super) {
     // Private functions
     Boulders.prototype.getBoulders = function () {
         var that = this;
-        Tools.get(Tools.SERVER_BASE_URL + 'get/boulder?hall_id=1&search=', function (text) {
+        var hallId = Tools.getHall();
+        if (null == hallId) {
+            console.log('Error, no hall choosen');
+            return;
+        }
+        Tools.get(Tools.SERVER_BASE_URL + 'get/boulder?hall_id=' + hallId + '&search=', function (text) {
             console.log('GET: ' + text);
             var parsed = JSON.parse(text);
             if (!parsed) {
@@ -390,7 +415,7 @@ var Halls = /** @class */ (function (_super) {
                 for (var i = 0; i < parsed.length; i++) {
                     var elmt = document.getElementById('CardHall' + parsed[i]['id']);
                     if (elmt) {
-                        elmt.addEventListener('click', that.onCardHallClick.bind(that, parsed['id']));
+                        elmt.addEventListener('click', that.onCardHallClick.bind(that, parsed[i]['id']));
                     }
                     else {
                         console.log('Unable to set an event');
@@ -400,9 +425,8 @@ var Halls = /** @class */ (function (_super) {
         });
     };
     Halls.prototype.onCardHallClick = function (id) {
-        Loader.getInstance().load(Loader.PAGE_BOULDERS, {
-            'hall_id': id
-        });
+        Tools.setHall(id);
+        Loader.getInstance().load(Loader.PAGE_BOULDERS, {});
     };
     Halls.TYPE_PAGE_HALLS = 'PAGE_HALLS';
     return Halls;
@@ -460,9 +484,16 @@ var Home = /** @class */ (function (_super) {
                 // Success
                 // We can store the token
                 Tools.setToken(parsed.token);
-                //
                 // We can load the next page.
-                Loader.getInstance().load(Loader.PAGE_HALLS, {});
+                if (null == Tools.getHall()) {
+                    // If there isn't any hall defined, we load the page to choose one
+                    Loader.getInstance().load(Loader.PAGE_HALLS, {});
+                }
+                else {
+                    // A hall is stored, we can load the boulder page.
+                    // The user can then choose to change hall
+                    Loader.getInstance().load(Loader.PAGE_BOULDERS, {});
+                }
             }
         }, function (data) {
             // An error occurred.

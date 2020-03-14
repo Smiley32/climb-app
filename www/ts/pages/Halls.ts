@@ -58,7 +58,7 @@ class Halls extends Page {
         for (let i : number = 0; i < parsed.length; i++) {
           let elmt = document.getElementById('CardHall' + parsed[i]['id']);
           if (elmt) {
-            elmt.addEventListener('click', that.onCardHallClick.bind(that, parsed['id']));
+            elmt.addEventListener('click', that.onCardHallClick.bind(that, parsed[i]['id']));
           } else {
             console.log('Unable to set an event');
           }
@@ -68,8 +68,7 @@ class Halls extends Page {
   }
 
   public onCardHallClick(id: number) {
-    Loader.getInstance().load(Loader.PAGE_BOULDERS, {
-      'hall_id': id
-    });
+    Tools.setHall(id);
+    Loader.getInstance().load(Loader.PAGE_BOULDERS, {});
   }
 }

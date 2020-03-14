@@ -58,9 +58,16 @@ class Home extends Page {
         // Success
         // We can store the token
         Tools.setToken(parsed.token);
-        //
+        
         // We can load the next page.
-        Loader.getInstance().load(Loader.PAGE_HALLS, {});
+        if (null == Tools.getHall()) {
+          // If there isn't any hall defined, we load the page to choose one
+          Loader.getInstance().load(Loader.PAGE_HALLS, {});
+        } else {
+          // A hall is stored, we can load the boulder page.
+          // The user can then choose to change hall
+          Loader.getInstance().load(Loader.PAGE_BOULDERS, {});
+        }
       }
     }, function(data) {
       // An error occurred.

@@ -8,7 +8,6 @@ class Boulders extends Page {
     }
   
     public create(fct: PageFunction, params: any) {
-      console.log(params.test);
       let that = this;
       Tools.get(Loader.PATH_TEMPLATES + 'cardBoulder.html', function(text) {
         that._fctBoulderCard = doT.template(text);
@@ -42,7 +41,12 @@ class Boulders extends Page {
     // Private functions
     private getBoulders() {
         let that = this;
-        Tools.get(Tools.SERVER_BASE_URL + 'get/boulder?hall_id=1&search=', function(text) {
+        let hallId = Tools.getHall();
+        if (null == hallId) {
+          console.log('Error, no hall choosen');
+          return;
+        }
+        Tools.get(Tools.SERVER_BASE_URL + 'get/boulder?hall_id=' + hallId + '&search=', function(text) {
             console.log('GET: ' + text);
             let parsed = JSON.parse(text);
             if (!parsed) {

@@ -70,6 +70,14 @@ class Tools {
     return localStorage.getItem('token');
   }
 
+  public static setHall(hall) {
+    localStorage.setItem('hall', hall);
+  }
+
+  public static getHall() {
+    return localStorage.getItem('hall');
+  }
+
   /**
    * Displays an error message on top of the page.
    * @param message The message to display
