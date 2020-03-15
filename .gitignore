@@ -3,6 +3,7 @@ node_modules/*
 platforms/*
 plugins/*
 .gradle/*
+.idea/*
 
 .directory
 package-lock.json
