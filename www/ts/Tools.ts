@@ -9,7 +9,7 @@ class Tools {
    * @param callback  The function to call upon success.
    */
   public static get(url: string, callback: CallbackText) : void {
-    var xhttp = new XMLHttpRequest();
+    let xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
       if (this.readyState === 4) 
       {
@@ -32,14 +32,22 @@ class Tools {
    * @param object    A (json) object to send (not a string).
    * @param callback  The function to call upon success.
    */
-  public static post(url: string, object: any, callback: CallbackText, errorCallback: CallbackText = null) {
+  public static post(url: string, object: any, callback: CallbackText, errorCallback: CallbackText = null, authorization: boolean = true) {
     let xhttp = new XMLHttpRequest();
     xhttp.open('POST', url, true);
     xhttp.setRequestHeader('Content-Type', 'application/json');
+
+    if (authorization) {
+      let token: string = Tools.getToken();
+      if (null !== token) {
+        xhttp.setRequestHeader('Authorization', token);
+      }
+    }
+
     xhttp.onreadystatechange = function() {
       if(this.readyState == 4) {
         if (this.status == 200) {
-          if(null != callback && undefined != callback) {
+          if(null !== callback && undefined !== callback) {
             callback(this.responseText);
           }
         } else {

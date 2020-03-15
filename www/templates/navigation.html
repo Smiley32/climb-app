@@ -1,0 +1,14 @@
+<div sidebarjs id="sidebarjs">
+    <nav>
+        <a href="link">Home</a>
+        <a href="link">About</a>
+        <a href="link">Contacts</a>
+    </nav>
+</div>
+{{? it.back}}
+    <button id="NavigationBackButton" class="button"><-</button>
+{{?}}
+{{? it.menu}}
+    <button id="NavigationMenuButton" class="button">M</button>
+{{?}}
+<h1>{{= it.name}}</h1>

@@ -24,10 +24,6 @@
     color: #f60;
 }
 
-h1 {
-    margin-top: 2em;
-}
-
 .button.nav {
     position: fixed;
     margin: 0.5em;
@@ -41,6 +37,11 @@ h1 {
 
 .main-card {
     margin-top: 3.5em;
+    width: 100vw;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1000;
 }
 
 #boulder {
@@ -88,4 +89,24 @@ h1 {
 .columns {
     margin-left: 0!important;
     margin-right: 0!important;
+}
+
+/*
+    NAVIGATION
+ */
+
+#IndexNavContainer {
+    height: 3.5em;
+}
+
+#NavigationBackButton,#NavigationMenuButton {
+    position: fixed;
+    margin: .5em;
+}
+
+nav h1 {
+    position: absolute;
+    line-height: 1.75em;
+    margin-left: 2.5em;
+    font-size: 1.85em;
 }

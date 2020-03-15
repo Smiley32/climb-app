@@ -16,7 +16,9 @@ var Loader = /** @class */ (function () {
         // private
         this._loadedPages = [];
         this._pageFunctions = [];
+        this._sidebarjs = null;
         this.fctMessageTemplate = null;
+        this.fctNavigationTemplate = null;
         // ...
     }
     // private
@@ -72,6 +74,13 @@ var Loader = /** @class */ (function () {
             }
         });
         finishedCount++;
+        Tools.get(Loader.PATH_TEMPLATES + 'navigation.html', function (text) {
+            that.fctNavigationTemplate = doT.template(text);
+            if (--finishedCount === 0) {
+                callback();
+            }
+        });
+        finishedCount++;
         Tools.get(Loader.PATH_TEMPLATES + Loader.PAGE_HOME, function (text) {
             that._pageFunctions[Loader.PAGE_HOME] = doT.template(text);
             if (--finishedCount === 0) {
@@ -107,12 +116,46 @@ var Loader = /** @class */ (function () {
     Loader.prototype.getCurrent = function () {
         return this._loadedPages[this._loadedPages.length - 1];
     };
+    Loader.prototype.onMenuOpen = function () {
+        console.log('Opened...');
+    };
+    Loader.prototype.onMenuClose = function () {
+        console.log('Closed...');
+    };
+    Loader.prototype.changeNav = function (enableBack, enableMenu, title) {
+        if (title === void 0) { title = ''; }
+        // We replace the nav by a new nav, updated with the given parameters.
+        document.getElementById('IndexNavContainer').innerHTML = this.fctNavigationTemplate({
+            'back': enableBack,
+            'menu': enableMenu,
+            'name': title
+        });
+        if (enableMenu) {
+            this._sidebarjs = new SidebarJS.SidebarElement({
+                // component: <HTMLElement>document.getElementById('sidebarjs'),
+                documentMinSwipeX: 10,
+                documentSwipeRange: 40,
+                nativeSwipe: true,
+                nativeSwipeOpen: true,
+                position: 'left',
+                backdropOpacity: 0.3,
+                responsive: false,
+                onOpen: this.onMenuOpen,
+                onClose: this.onMenuClose
+            });
+            var that_1 = this;
+            document.getElementById('NavigationMenuButton').addEventListener('click', function () {
+                that_1._sidebarjs.toggle();
+            });
+        }
+    };
     /**
      * Load a page, to replace the current one. The current page isn't destroyed and stays in the stack.
      * @param page    The string representing the page to load (declared in Loader).
      * @param params  Optional parameters to send to the 'create' function of the page.
      */
     Loader.prototype.load = function (page, params) {
+        this.changeNav(params['backNavButton'] === true, !(params['menuNavButton'] === false), params['nameNavText'] === undefined ? '' : params['nameNavText']);
         var animationElmt = document.getElementById('animation');
         animationElmt.classList.remove('removed');
         animationElmt.classList.add('show');
@@ -206,15 +249,22 @@ var Tools = /** @class */ (function () {
      * @param object    A (json) object to send (not a string).
      * @param callback  The function to call upon success.
      */
-    Tools.post = function (url, object, callback, errorCallback) {
+    Tools.post = function (url, object, callback, errorCallback, authorization) {
         if (errorCallback === void 0) { errorCallback = null; }
+        if (authorization === void 0) { authorization = true; }
         var xhttp = new XMLHttpRequest();
         xhttp.open('POST', url, true);
         xhttp.setRequestHeader('Content-Type', 'application/json');
+        if (authorization) {
+            var token = Tools.getToken();
+            if (null !== token) {
+                xhttp.setRequestHeader('Authorization', token);
+            }
+        }
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4) {
                 if (this.status == 200) {
-                    if (null != callback && undefined != callback) {
+                    if (null !== callback && undefined !== callback) {
                         callback(this.responseText);
                     }
                 }
@@ -382,7 +432,7 @@ function main() {
         if (null == Tools.getToken()) {
             // The user isn't connected, we ask him
             loader.load(Loader.PAGE_HOME, {
-                test: 'Smiley32'
+                'nameNavText': 'Login'
             });
         }
         else {
@@ -453,6 +503,7 @@ var Boulders = /** @class */ (function (_super) {
                 var html = '';
                 for (var i = 0; i < parsed.length; i++) {
                     html += that._fctBoulderCard({
+                        'image': Tools.SERVER_BASE_URL + 'images/' + parsed[i]['id'] + '.jpg',
                         'description': parsed[i]['description'],
                         'difficulty': Tools.gradeValueToFrench(parsed[i]['difficulty']),
                         'success_count': 42,
@@ -649,16 +700,54 @@ var NewBoulder = /** @class */ (function (_super) {
         console.log('test');
         console.log(this);
         document.getElementById('NewBoulderNewImageButton').addEventListener('click', this.onNewBoulderNewImageButtonClick.bind(this));
+        document.getElementById('NewBoulderAddButton').addEventListener('click', this.onNewBoulderAddButtonClick.bind(this));
     };
     //
     // Private functions
     // ...
     //
     // Callback functions (on click for example)
+    NewBoulder.prototype.onNewBoulderAddButtonClick = function () {
+        // Get the data from the fields
+        var description = document.getElementById('NewBoulderDescriptionInput').value;
+        var difficulty = document.getElementById('NewBoulderDifficultyInput').value;
+        if (!description || !difficulty) {
+            Tools.displayError('Un champ n\'est pas rempli');
+            return;
+        }
+        var imageData = document.getElementById('NewBoulderImage').src;
+        if (!imageData) {
+            Tools.displayError('Vous devez ajouter une image du bloc');
+            return;
+        }
+        var token = Tools.getToken();
+        // TODO: check token null
+        var hall = Tools.getHall();
+        // Send post request to upload the image and send the data to the server
+        // The picture should be already compressed+reduced enough to be send in one single request
+        Tools.post(Tools.SERVER_BASE_URL + 'post/boulder', {
+            'imageData': imageData,
+            'description': description,
+            'difficulty': difficulty,
+            'hall_id': hall
+        }, function (data) {
+            // Success
+            var parsed = JSON.parse(data);
+            if (parsed.error === 0) {
+                // We can move to the previous page
+                Loader.getInstance().unload();
+            }
+        }, function (data) {
+            // Errror
+            var parsed = JSON.parse(data);
+            // TODO: check if it was a token error. If it's the case, we should ask the user to enter its password
+            Tools.displayError(parsed.message);
+        });
+    };
     NewBoulder.prototype.onNewBoulderNewImageButtonClick = function () {
         navigator.camera.getPicture(function (imageData) {
-            console.log('success');
-            console.log(imageData);
+            // console.log('success');
+            // console.log(imageData);
             document.getElementById('NewBoulderImage').src = 'data:image/jpeg;base64,' + imageData;
         }, function (message) {
             console.log('error');

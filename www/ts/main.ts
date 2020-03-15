@@ -5,7 +5,7 @@ function main() {
     if (null == Tools.getToken()) {
       // The user isn't connected, we ask him
       loader.load(Loader.PAGE_HOME, {
-        test: 'Smiley32'
+        'nameNavText': 'Login'
       });
     } else {
       // The user is already connected, we can skip the first page

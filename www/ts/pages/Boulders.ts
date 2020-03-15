@@ -55,6 +55,7 @@ class Boulders extends Page {
           let html: string = '';
           for (let i = 0; i < parsed.length; i++) {
             html += that._fctBoulderCard({
+              'image': Tools.SERVER_BASE_URL + 'images/' + parsed[i]['id'] + '.jpg',
               'description': parsed[i]['description'],
               'difficulty': Tools.gradeValueToFrench(parsed[i]['difficulty']),
               'success_count': 42,

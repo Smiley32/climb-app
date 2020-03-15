@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "outFile": "js/all.js"
-  },
-  "include": [
-    "ts/*",
-    "ts/pages/*"
-  ]
-}

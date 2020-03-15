@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "outFile": "www/js/all.js"
+  },
+  "include": [
+    "www/ts/*",
+    "www/ts/pages/*"
+  ]
+}
